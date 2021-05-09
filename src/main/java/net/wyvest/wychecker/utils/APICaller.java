@@ -1,8 +1,4 @@
-package net.wyvest.mod.utils;
-
-/*/
-    ty pinkulu <3
- */
+package net.wyvest.wychecker.utils;
 
 import club.sk1er.mods.core.util.Multithreading;
 import com.google.gson.Gson;
@@ -11,15 +7,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class VersionChecker {
+public class APICaller {
     public static String version;
-    public static String info;
 
     public static void getVersion() {
         OkHttpClient client = new OkHttpClient();
         Multithreading.runAsync(() -> {
             Request request = new Request.Builder()
-                    .url("https://wyvest.net/example.json")
+                    .url("https://wyvest.net/checker.json")
                     .build();
             client.newCall(request).enqueue(new Callback() {
                 @Override
@@ -35,7 +30,6 @@ public class VersionChecker {
                         if (!myRespones.contains("error")) {
                             JsonResponse Jresponse = new Gson().fromJson(myRespones, JsonResponse.class);
                             version = Jresponse.version;
-                            info = Jresponse.info;
                         }
                     }
                 }

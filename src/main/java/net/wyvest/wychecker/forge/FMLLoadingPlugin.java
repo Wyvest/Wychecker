@@ -1,4 +1,4 @@
-package net.wyvest.mod.forge;
+package net.wyvest.wychecker.forge;
 
 import club.sk1er.modcore.ModCoreInstaller;
 import net.minecraft.launchwrapper.Launch;

@@ -1,6 +1,5 @@
-package net.wyvest.mod.utils;
+package net.wyvest.wychecker.utils;
 
 public class JsonResponse {
     public String version;
-    public String info;
 }
