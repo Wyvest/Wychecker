@@ -9,9 +9,10 @@ buildscript {
             name = "jitpack"
             url = "https://jitpack.io/"
         }
+        flatDir dirs: 'libs'
     }
     dependencies {
-        classpath 'com.github.asbyth:ForgeGradle:86b2392'
+        classpath 'com.github.asbyth:ForgeGradle:1df6dafd6e'
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -26,10 +27,10 @@ compileJava.options.encoding = 'UTF-8'
 minecraft {
     version = "1.8.9-11.15.1.2318-1.8.9"
     runDir = "run"
-	
 	replace("@VER@", project.version)
-	
     mappings = "stable_22"
+    makeObfSourceJar = false
+    clientJvmArgs += "-Dfml.coreMods.load=net.wyvest.wychecker.forge.FMLLoadingPlugin"
 }
 
 repositories {

@@ -1,13 +1,12 @@
 package net.wyvest.wychecker.gui;
 
+import club.sk1er.mods.core.util.WebUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.EnumChatFormatting;
-import net.wyvest.wychecker.checker.BadMod;
 import net.wyvest.wychecker.checker.ModChecker;
-import net.wyvest.wychecker.checker.NeededMod;
 
 import java.awt.*;
 import java.io.IOException;
@@ -58,17 +57,18 @@ public class GuiMods {
         private void setupBadModButtons(String type, GuiButton button) throws IOException {
             int offset = this.height / 2 - 50;
             int offsetX = this.width / 2 - 50;
-            for (BadMod b : ModChecker.instance.actualBadMods) {
+            for (String b : ModChecker.instance.badMods) {
+                String url = "https://wyvest.net/checker/" + b + ".json";
                 if (type.equalsIgnoreCase("init")) {
-                    this.buttonList.add(new GuiButton(ModChecker.instance.actualBadMods.indexOf(b) + 1, offsetX, this.height - offset, 100, 20, b.name));
+                    this.buttonList.add(new GuiButton(ModChecker.instance.badMods.indexOf(b) + 1, offsetX, this.height - offset, 100, 20, WebUtil.fetchJSON(url).optJSONArray("main").get(0).getAsString()));
                     offset += 25;
-                    if (offset > ((this.height / 2) / ModChecker.instance.actualBadMods.size() * 20)) {
+                    if (offset > ((this.height / 2) / ModChecker.instance.badMods.size() * 20)) {
                         offsetX = this.width / 2 + 5;
                         offset = this.height / 2 - 50;
                     }
                 } else if (type.equalsIgnoreCase("action")) {
-                    if (button.id == ModChecker.instance.actualBadMods.indexOf(b) + 1 && b.url != null) {
-                        Desktop.getDesktop().browse(URI.create(b.url));
+                    if (button.id == ModChecker.instance.badMods.indexOf(b) + 1 && WebUtil.fetchJSON(url).optJSONArray("main").get(4).getAsString() != null) {
+                        Desktop.getDesktop().browse(URI.create("https://google.com"));
                     }
                 }
             }
@@ -126,17 +126,18 @@ public class GuiMods {
         private void setupNeededModButtons(String type, GuiButton button) throws IOException {
             int offset = this.height / 2 - 50;
             int offsetX = this.width / 2 - 50;
-            for (NeededMod n : ModChecker.instance.actualNeededMods) {
+            for (String n : ModChecker.instance.neededMods) {
+                String url = "https://wyvest.net/checker/" + n + ".json";
                 if (type.equalsIgnoreCase("init")) {
-                    this.buttonList.add(new GuiButton(ModChecker.instance.actualNeededMods.indexOf(n) + 1, offsetX, this.height - offset, 100, 20, n.name));
+                    this.buttonList.add(new GuiButton(ModChecker.instance.neededMods.indexOf(n) + 1, offsetX, this.height - offset, 100, 20, WebUtil.fetchJSON(url).optJSONArray("main").get(0).getAsString()));
                     offset += 25;
-                    if (offset > ((this.height / 2) / ModChecker.instance.actualNeededMods.size() * 20)) {
+                    if (offset > ((this.height / 2) / ModChecker.instance.neededMods.size() * 20)) {
                         offsetX = this.width / 2 + 5;
                         offset = this.height / 2 - 50;
                     }
                 } else if (type.equalsIgnoreCase("action")) {
-                    if (button.id == ModChecker.instance.actualNeededMods.indexOf(n) + 1) {
-                        Desktop.getDesktop().browse(URI.create(n.url));
+                    if (button.id == ModChecker.instance.neededMods.indexOf(n) + 1) {
+                        Desktop.getDesktop().browse(URI.create(WebUtil.fetchJSON(url).optJSONArray("main").get(4).getAsString()));
                     }
                 }
             }

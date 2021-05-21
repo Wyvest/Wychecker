@@ -1,73 +1,76 @@
 package net.wyvest.wychecker.checker;
 
+import club.sk1er.mods.core.util.WebUtil;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.fml.common.Loader;
-import net.wyvest.wychecker.checker.impl.*;
 
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class ModChecker {
     public final static ModChecker instance = new ModChecker();
-    public final List<BadMod> badMods = new ArrayList<>();
-    public final List<NeededMod> neededMods = new ArrayList<>();
-    public final List<BadMod> actualBadMods = new ArrayList<>();
-    public final List<NeededMod> actualNeededMods = new ArrayList<>();
+    public JsonArray badModsOnline = new JsonArray();
+    public JsonArray neededModsOnline = new JsonArray();
+    public ArrayList<String> badMods = new ArrayList<>();
+    public ArrayList<String> neededMods = new ArrayList<>();
     File modsInModsFolder = new File(Launch.minecraftHome, "mods");
     File[] coreModList = modsInModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
 
     public void init() {
-        this.badMods.add(new CanalexPerspectiveMod());
-        this.badMods.add(new FramesPlus());
-        this.badMods.add(new LabyMod());
-        this.badMods.add(new ModCoreContainer());
-        this.badMods.add(new OrangeOAM());
-        this.badMods.add(new PlayerAPI());
-        this.badMods.add(new ResourcePackOrganizer());
-        this.badMods.add(new SkyblockExtras());
-        this.badMods.add(new SpiderFrogOAM());
-        this.badMods.add(new VanillaEnhancements());
-        this.badMods.add(new Skypixel());
-        this.neededMods.add(new Patcher());
-        this.neededMods.add(new Optifine());
+        getOnlineMods();
         getActualBadMods();
         getActualNeededMods();
     }
 
-    private void getActualBadMods() {
-        if (!modsInModsFolder.exists()) {
-            modsInModsFolder.mkdirs();
+    private void getOnlineMods() {
+        try {
+            badModsOnline = WebUtil.fetchJSON("https://wyvest.net/checker/checkermain.json").optJSONArray("badmods");
+            neededModsOnline = WebUtil.fetchJSON("https://wyvest.net/checker/checkermain.json").optJSONArray("neededmods");
+        } catch (Exception e) {
+            this.getOnlineMods();
         }
+    }
 
-        File[] coreModList = modsInModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
-        for (BadMod b : this.badMods) {
-            if (b.fileName == null) {
-                if (Loader.isModLoaded(b.modId)) {
-                    actualBadMods.add(b);
-                }
-            } else {
-                for (File file : coreModList) {
-                    try {
+    private void getActualBadMods() {
+        try {
+            if (!modsInModsFolder.exists()) {
+                modsInModsFolder.mkdirs();
+            }
+            File[] coreModList = modsInModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
+            for (JsonElement b : badModsOnline) {
+                String url = "https://wyvest.net/checker/" + b.getAsString() + ".json";
+                if (WebUtil.fetchJSON(url).optJSONArray("main").get(3) == null) {
+                    if (Loader.isModLoaded(WebUtil.fetchJSON(url).optJSONArray("main").get(2).getAsString())) {
+                        badMods.add(b.getAsString());
+                    }
+                } else {
+                    for (File file : coreModList) {
+                        try {
 
-                        try (ZipFile zipFile = new ZipFile(file)) {
-                            if (zipFile.getEntry(b.fileName) != null) {
-                                actualBadMods.add(b);
+                            try (ZipFile zipFile = new ZipFile(file)) {
+                                if (zipFile.getEntry(WebUtil.fetchJSON(url).optJSONArray("main").get(3).getAsString()) != null) {
+                                    badMods.add(b.getAsString());
+                                }
                             }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
                 }
-            }
 
+            }
+            if (is5zig()) badMods.add("fivezigmod");
+        } catch (Exception e) {
+            this.getActualBadMods(); //REALLY REALLY BAD but the mod can't function and crashes without these files so
         }
-        if (is5zig()) actualBadMods.add(new FiveZigMod());
+
     }
 
     public boolean is5zig() {
@@ -98,32 +101,37 @@ public class ModChecker {
 
 
     public void getActualNeededMods() {
-        if (!modsInModsFolder.exists()) {
-            modsInModsFolder.mkdirs();
-        }
-
-        File[] coreModList = modsInModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
-        for (NeededMod n : this.neededMods) {
-            if (n.fileName == null) {
-                if (!Loader.isModLoaded(n.name)) {
-                    actualNeededMods.add(n);
-                }
-            } else {
-                for (File file : coreModList) {
-                    try {
-
-                        try (ZipFile zipFile = new ZipFile(file)) {
-                            ZipEntry entry = zipFile.getEntry("mcmod.info");
-                            if (zipFile.getEntry(n.fileName) == null) {
-                                actualNeededMods.add(n);
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+        try {
+            if (!modsInModsFolder.exists()) {
+                modsInModsFolder.mkdirs();
             }
 
+            File[] coreModList = modsInModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
+            for (JsonElement n : this.neededModsOnline) {
+                String url = "https://wyvest.net/checker/" + n.getAsString() + ".json";
+                if (WebUtil.fetchJSON(url).optJSONArray("main").get(3) == null) {
+                    if (!Loader.isModLoaded(WebUtil.fetchJSON(url).optJSONArray("main").get(2).getAsString())) {
+                        neededMods.add(n.getAsString());
+                    }
+                } else {
+                    for (File file : coreModList) {
+                        try {
+
+                            try (ZipFile zipFile = new ZipFile(file)) {
+                                if (zipFile.getEntry(WebUtil.fetchJSON(url).optJSONArray("main").get(3).getAsString()) == null) {
+                                    neededMods.add(n.getAsString());
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+            }
+        } catch (Exception e) {
+            this.getActualNeededMods();
         }
+
     }
 }

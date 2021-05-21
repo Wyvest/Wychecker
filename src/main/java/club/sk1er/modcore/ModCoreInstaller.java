@@ -33,12 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/*
-    Created by Sk1er for use in all mods. Install under exact package name each time.
- */
 public class ModCoreInstaller {
-
-
     private static final String VERSION_URL = "https://api.sk1er.club/modcore_versions";
     private static final String className = "club.sk1er.mods.core.ModCore";
     private static boolean errored = false;
