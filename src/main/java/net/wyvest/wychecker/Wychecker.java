@@ -7,7 +7,6 @@ import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.wyvest.wychecker.checker.ModChecker;
 import net.wyvest.wychecker.command.WycheckerCommand;
 
 import java.awt.*;
@@ -17,12 +16,11 @@ import java.net.URI;
 @Mod(name = Wychecker.MOD_NAME, version = Wychecker.VERSION, modid = Wychecker.MOD_ID)
 public class Wychecker {
 
-    public static final String MOD_ID = "wychecker";
-    public static final String MOD_NAME = "Wychecker";
-    public static final String VERSION = "0.3.0";
+    public static final String MOD_ID = "wychecker", MOD_NAME = "Wychecker", VERSION = "@VER@";
 
     @Mod.Instance(MOD_ID)
-    public static Wychecker INSTANCE;
+    private static Wychecker INSTANCE;
+    private static final ModChecker checker = new ModChecker();
 
     @Mod.EventHandler
     protected void onInit(FMLInitializationEvent event) {
@@ -30,12 +28,11 @@ public class Wychecker {
         ClientCommandHandler.instance.registerCommand(new WycheckerCommand());
     }
 
-
     @Mod.EventHandler
     protected void onPostInit(FMLPostInitializationEvent event) {
         /*/
         try {
-            if (!APICaller.version.matches(VERSION)) Notifications.INSTANCE.pushNotification("Wychecker", "Your version of Wychecker is outdated. Please update to the latest version by clicking here.", this::browseDownloadPage);
+            if (!APICaller.version.matches(VERSION)) Notifications.INSTANCE.pushNotification("WyChecker", "Your version of WyChecker is outdated. Please update to the latest version by clicking here.", this::browseDownloadPage);
         } catch (Exception e) {e.printStackTrace();}
 
          */
@@ -49,7 +46,14 @@ public class Wychecker {
             e.printStackTrace();
             return null;
         }
+    }
 
+    public static Wychecker getInstance() {
+        return INSTANCE;
+    }
+
+    public static ModChecker getChecker() {
+        return checker;
     }
 
 }

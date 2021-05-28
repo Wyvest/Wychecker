@@ -1,15 +1,13 @@
 buildscript {
     repositories {
-        jcenter()
         maven {
-            name = "forge"
+            name = "Forge"
             url = "https://maven.minecraftforge.net/"
         }
         maven {
-            name = "jitpack"
+            name = "JitPack"
             url = "https://jitpack.io/"
         }
-        flatDir dirs: 'libs'
     }
     dependencies {
         classpath 'com.github.asbyth:ForgeGradle:1df6dafd6e'
@@ -17,9 +15,9 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.0"
-group= "net.wyvest"
-archivesBaseName = "Wychecker"
+version = project.mod_version
+group = project.mod_group
+archivesBaseName = project.mod_name
 
 sourceCompatibility = targetCompatibility = 1.8
 compileJava.options.encoding = 'UTF-8'
@@ -29,14 +27,11 @@ minecraft {
     runDir = "run"
 	replace("@VER@", project.version)
     mappings = "stable_22"
-    makeObfSourceJar = false
-    clientJvmArgs += "-Dfml.coreMods.load=net.wyvest.wychecker.forge.FMLLoadingPlugin"
 }
 
 repositories {
-    jcenter()
     maven {
-        name = "jitpack"
+        name = "JitPack"
         url = "https://jitpack.io/"
     }
 }
@@ -54,8 +49,7 @@ jar {
     }
 }
 
-processResources
-{
+processResources {
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
 
@@ -69,4 +63,3 @@ processResources
         exclude 'mcmod.info'
     }
 }
-

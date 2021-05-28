@@ -12,21 +12,13 @@ import java.util.List;
 
 public class GuiMain extends GuiScreen {
 
-    private List<GuiButton> buttons;
-
-    private void setButtons() {
-        this.buttons = Arrays.asList(
+    @Override
+    public void initGui() {
+        this.buttonList.addAll(Arrays.asList(
                 new GuiButton(0, this.width / 2 - 50, this.height - 20, 100, 20, "Close"),
                 new GuiButton(1, this.width / 2 - 50, this.height / 2 - 30, 100, 20, "Bad Mods"),
                 new GuiButton(2, this.width / 2 - 50, this.height / 2, 100, 20, "Needed Mods")
-        );
-    }
-
-    @Override
-    public void initGui() {
-        this.setButtons();
-        this.buttonList.addAll(buttons);
-        super.initGui();
+        ));
     }
 
     @Override
@@ -34,7 +26,6 @@ public class GuiMain extends GuiScreen {
         if (button.id == 0) Minecraft.getMinecraft().displayGuiScreen(null);
         if (button.id == 1) Minecraft.getMinecraft().displayGuiScreen(new GuiMods.GuiBadMods(this));
         if (button.id == 2) Minecraft.getMinecraft().displayGuiScreen(new GuiMods.GuiNeededMods(this));
-        super.actionPerformed(button);
     }
 
     @Override
@@ -57,4 +48,5 @@ public class GuiMain extends GuiScreen {
     public boolean doesGuiPauseGame() {
         return false;
     }
+
 }
