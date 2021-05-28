@@ -1,4 +1,4 @@
-package net.wyvest.wychecker.checker;
+package net.wyvest.wychecker;
 
 import club.sk1er.mods.core.util.WebUtil;
 import com.google.gson.JsonArray;

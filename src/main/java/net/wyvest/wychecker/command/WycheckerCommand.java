@@ -4,14 +4,13 @@ import club.sk1er.mods.core.ModCore;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.BlockPos;
-import net.wyvest.wychecker.WyChecker;
-import net.wyvest.wychecker.checker.ModChecker;
+import net.wyvest.wychecker.Wychecker;
 import net.wyvest.wychecker.gui.GuiMain;
 
 import java.util.Collections;
 import java.util.List;
 
-public class WyCheckerCommand extends CommandBase {
+public class WycheckerCommand extends CommandBase {
     @Override
     public String getCommandName() {
         return "wychecker";
@@ -25,9 +24,9 @@ public class WyCheckerCommand extends CommandBase {
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
         if (args.length <= 0) {
-            WyChecker.getChecker().init();
+            Wychecker.getChecker().init();
             ModCore.getInstance().getGuiHandler().open(new GuiMain());
-        } else if ("reload".equals(args[0])) WyChecker.getChecker().init();
+        } else if ("reload".equals(args[0])) Wychecker.getChecker().init();
     }
 
     @Override

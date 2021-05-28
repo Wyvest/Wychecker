@@ -7,28 +7,25 @@ import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.wyvest.wychecker.checker.ModChecker;
-import net.wyvest.wychecker.command.WyCheckerCommand;
+import net.wyvest.wychecker.command.WycheckerCommand;
 
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 
-@Mod(name = WyChecker.MOD_NAME, version = WyChecker.VERSION, modid = WyChecker.MOD_ID)
-public class WyChecker {
+@Mod(name = Wychecker.MOD_NAME, version = Wychecker.VERSION, modid = Wychecker.MOD_ID)
+public class Wychecker {
 
-    public static final String MOD_ID = "wychecker";
-    public static final String MOD_NAME = "WyChecker";
-    public static final String VERSION = "0.3";
+    public static final String MOD_ID = "wychecker", MOD_NAME = "Wychecker", VERSION = "@VER@";
 
     @Mod.Instance(MOD_ID)
-    private static WyChecker INSTANCE;
+    private static Wychecker INSTANCE;
     private static final ModChecker checker = new ModChecker();
 
     @Mod.EventHandler
     protected void onInit(FMLInitializationEvent event) {
         ModCoreInstaller.initializeModCore(Minecraft.getMinecraft().mcDataDir);
-        ClientCommandHandler.instance.registerCommand(new WyCheckerCommand());
+        ClientCommandHandler.instance.registerCommand(new WycheckerCommand());
     }
 
     @Mod.EventHandler
@@ -51,7 +48,7 @@ public class WyChecker {
         }
     }
 
-    public static WyChecker getInstance() {
+    public static Wychecker getInstance() {
         return INSTANCE;
     }
 
