@@ -8,34 +8,34 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.wyvest.wychecker.checker.ModChecker;
-import net.wyvest.wychecker.command.WycheckerCommand;
+import net.wyvest.wychecker.command.WyCheckerCommand;
 
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 
-@Mod(name = Wychecker.MOD_NAME, version = Wychecker.VERSION, modid = Wychecker.MOD_ID)
-public class Wychecker {
+@Mod(name = WyChecker.MOD_NAME, version = WyChecker.VERSION, modid = WyChecker.MOD_ID)
+public class WyChecker {
 
     public static final String MOD_ID = "wychecker";
-    public static final String MOD_NAME = "Wychecker";
-    public static final String VERSION = "0.3.0";
+    public static final String MOD_NAME = "WyChecker";
+    public static final String VERSION = "0.3";
 
     @Mod.Instance(MOD_ID)
-    public static Wychecker INSTANCE;
+    private static WyChecker INSTANCE;
+    private static final ModChecker checker = new ModChecker();
 
     @Mod.EventHandler
     protected void onInit(FMLInitializationEvent event) {
         ModCoreInstaller.initializeModCore(Minecraft.getMinecraft().mcDataDir);
-        ClientCommandHandler.instance.registerCommand(new WycheckerCommand());
+        ClientCommandHandler.instance.registerCommand(new WyCheckerCommand());
     }
-
 
     @Mod.EventHandler
     protected void onPostInit(FMLPostInitializationEvent event) {
         /*/
         try {
-            if (!APICaller.version.matches(VERSION)) Notifications.INSTANCE.pushNotification("Wychecker", "Your version of Wychecker is outdated. Please update to the latest version by clicking here.", this::browseDownloadPage);
+            if (!APICaller.version.matches(VERSION)) Notifications.INSTANCE.pushNotification("WyChecker", "Your version of WyChecker is outdated. Please update to the latest version by clicking here.", this::browseDownloadPage);
         } catch (Exception e) {e.printStackTrace();}
 
          */
@@ -49,7 +49,14 @@ public class Wychecker {
             e.printStackTrace();
             return null;
         }
+    }
 
+    public static WyChecker getInstance() {
+        return INSTANCE;
+    }
+
+    public static ModChecker getChecker() {
+        return checker;
     }
 
 }

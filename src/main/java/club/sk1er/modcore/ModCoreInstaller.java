@@ -54,10 +54,8 @@ public class ModCoreInstaller {
             invalidClasses.setAccessible(true);
             Object obj = invalidClasses.get(ModCoreInstaller.class.getClassLoader());
             ((Set<String>) obj).remove(className);
-            return Class.forName("club.sk1er.mods.core.ModCore") != null;
-        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException ignored) {
-            ignored.printStackTrace();
-        }
+            return Class.forName(className) != null;
+        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException ignored) {}
         return false;
     }
 

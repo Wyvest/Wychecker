@@ -15,49 +15,43 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class ModChecker {
-    public final static ModChecker instance = new ModChecker();
-    public JsonArray badModsOnline = new JsonArray();
-    public JsonArray neededModsOnline = new JsonArray();
+
+    public ModHandler handler = new ModHandler();
+    public JsonArray badModsFetched = new JsonArray();
+    public JsonArray neededModsFetched = new JsonArray();
+
     public ArrayList<String> badMods = new ArrayList<>();
     public ArrayList<String> neededMods = new ArrayList<>();
-    File modsInModsFolder = new File(Launch.minecraftHome, "mods");
-    File[] coreModList = modsInModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
+
+    File modsFolder = new File(Launch.minecraftHome, "mods");
+    File[] coreModList = modsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
 
     public void init() {
-        getOnlineMods();
-        getActualBadMods();
-        getActualNeededMods();
+        handler.handleBadMods(badModsFetched);
+        handler.handleNeededMods(neededModsFetched);
+
+        getBadMods();
+        getNeededMods();
     }
 
-    private void getOnlineMods() {
+    private void getBadMods() {
         try {
-            badModsOnline = WebUtil.fetchJSON("https://wyvest.net/checker/checkermain.json").optJSONArray("badmods");
-            neededModsOnline = WebUtil.fetchJSON("https://wyvest.net/checker/checkermain.json").optJSONArray("neededmods");
-        } catch (Exception e) {
-            this.getOnlineMods();
-        }
-    }
-
-    private void getActualBadMods() {
-        try {
-            if (!modsInModsFolder.exists()) {
-                modsInModsFolder.mkdirs();
-            }
-            File[] coreModList = modsInModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
-            for (JsonElement b : badModsOnline) {
+            if (!modsFolder.exists())
+                modsFolder.mkdirs(); // This should never happen, but it's still a needed precaution.
+            File[] coreModList = modsFolder.listFiles((dir, name) -> name.endsWith(".jar")); // Fetch every potential mod inside the mods folder.
+            for (JsonElement b : badModsFetched) {
                 String url = "https://wyvest.net/checker/" + b.getAsString() + ".json";
-                if (WebUtil.fetchJSON(url).optJSONArray("main").get(3) == null) {
-                    if (Loader.isModLoaded(WebUtil.fetchJSON(url).optJSONArray("main").get(2).getAsString())) {
-                        badMods.add(b.getAsString());
-                    }
+                JsonArray mainArr = WebUtil.fetchJSON(url).optJSONArray("main");
+                if (mainArr == null) continue; // Precaution against NPEs.
+                if (mainArr.get(3) == null) {
+                    if (Loader.isModLoaded(mainArr.get(2).getAsString())) // Check if the mod is loaded.
+                        badMods.add(b.getAsString()); // Add to the bad mods list if the mod is loaded.
                 } else {
                     for (File file : coreModList) {
                         try {
-
                             try (ZipFile zipFile = new ZipFile(file)) {
-                                if (zipFile.getEntry(WebUtil.fetchJSON(url).optJSONArray("main").get(3).getAsString()) != null) {
+                                if (zipFile.getEntry(mainArr.get(3).getAsString()) != null)
                                     badMods.add(b.getAsString());
-                                }
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -68,7 +62,7 @@ public class ModChecker {
             }
             if (is5zig()) badMods.add("fivezigmod");
         } catch (Exception e) {
-            this.getActualBadMods(); //REALLY REALLY BAD but the mod can't function and crashes without these files so
+            handler.handleBadMods(badModsFetched); // Recursively fetch mods until it works.
         }
 
     }
@@ -100,27 +94,26 @@ public class ModChecker {
     }
 
 
-    public void getActualNeededMods() {
+    public void getNeededMods() {
+        // Read previous documentation.
         try {
-            if (!modsInModsFolder.exists()) {
-                modsInModsFolder.mkdirs();
-            }
-
-            File[] coreModList = modsInModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
-            for (JsonElement n : this.neededModsOnline) {
+            if (!modsFolder.exists())
+                modsFolder.mkdirs();
+            File[] coreModList = modsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
+            for (JsonElement n : neededModsFetched) {
                 String url = "https://wyvest.net/checker/" + n.getAsString() + ".json";
-                if (WebUtil.fetchJSON(url).optJSONArray("main").get(3) == null) {
-                    if (!Loader.isModLoaded(WebUtil.fetchJSON(url).optJSONArray("main").get(2).getAsString())) {
+                JsonArray mainArr = WebUtil.fetchJSON(url).optJSONArray("main");
+                if (mainArr == null) continue;
+                if (mainArr.get(3) == null) {
+                    if (!Loader.isModLoaded(mainArr.get(2).getAsString())) {
                         neededMods.add(n.getAsString());
                     }
                 } else {
                     for (File file : coreModList) {
                         try {
-
                             try (ZipFile zipFile = new ZipFile(file)) {
-                                if (zipFile.getEntry(WebUtil.fetchJSON(url).optJSONArray("main").get(3).getAsString()) == null) {
+                                if (zipFile.getEntry(mainArr.get(3).getAsString()) == null)
                                     neededMods.add(n.getAsString());
-                                }
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -130,8 +123,42 @@ public class ModChecker {
 
             }
         } catch (Exception e) {
-            this.getActualNeededMods();
+            handler.handleNeededMods(neededModsFetched); // Recursively fetch until it works.
+        }
+    }
+
+    public static class ModHandler {
+
+        private final JsonParser parser = new JsonParser();
+
+        private JsonArray getBadMods() {
+            return ((JsonObject) parser.parse(WebUtil.fetchString("https://wyvest.net/checker/checkermain.json"))).getAsJsonArray("badmods");
+        }
+
+        private JsonArray getNeededMods() {
+            return ((JsonObject) parser.parse(WebUtil.fetchString("https://wyvest.net/checker/checkermain.json"))).getAsJsonArray("neededmods");
+        }
+
+        public void handleBadMods(JsonArray badModsList) {
+            JsonArray badMods = getBadMods();
+            for (JsonElement element : badMods) {
+                String url = "https://wyvest.net/checker/" + element.getAsString() + ".json";
+                JsonObject urlRet = (JsonObject) parser.parse(WebUtil.fetchString(url));
+                if (urlRet != null && urlRet.has("name"))
+                    badModsList.add(urlRet.get("name").getAsString());
+            }
+        }
+
+        public void handleNeededMods(JsonArray neededModsList) {
+            JsonArray neededMods = getNeededMods();
+            for (JsonElement element : neededMods) {
+                String url = "https://wyvest.net/checker/" + element.getAsString() + ".json";
+                JsonObject urlRet = (JsonObject) parser.parse(WebUtil.fetchString(url));
+                if (urlRet != null && urlRet.has("name"))
+                    neededModsList.add(urlRet.get("name").getAsString());
+            }
         }
 
     }
+
 }

@@ -13,15 +13,13 @@ public class FMLLoadingPlugin implements IFMLLoadingPlugin {
     public String[] getASMTransformerClass() {
         int initialize = ModCoreInstaller.initialize(Launch.minecraftHome, "1.8.9");
 
-        if (ModCoreInstaller.isErrored() || initialize != 0 && initialize != -1) {
-            // Technically wouldn't happen in simulated installed but is important for actual impl
+        // Technically wouldn't happen in simulated install but is important for actual implementation.
+        if (ModCoreInstaller.isErrored() || initialize != 0 && initialize != -1)
             System.out.println("Failed to load Sk1er Modcore - " + initialize + " - " + ModCoreInstaller.getError());
-        }
 
-        // If true the classes are loaded
-        if (ModCoreInstaller.isIsRunningModCore()) {
+        // If true the classes have been loaded.
+        if (ModCoreInstaller.isIsRunningModCore())
             return new String[]{"club.sk1er.mods.core.forge.ClassTransformer"};
-        }
 
         return new String[]{};
     }
