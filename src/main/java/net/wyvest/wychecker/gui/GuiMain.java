@@ -8,7 +8,6 @@ import net.minecraft.util.EnumChatFormatting;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 public class GuiMain extends GuiScreen {
 
@@ -22,7 +21,7 @@ public class GuiMain extends GuiScreen {
     }
 
     @Override
-    protected void actionPerformed(GuiButton button) throws IOException {
+    protected void actionPerformed(GuiButton button) {
         if (button.id == 0) Minecraft.getMinecraft().displayGuiScreen(null);
         if (button.id == 1) Minecraft.getMinecraft().displayGuiScreen(new GuiMods.GuiBadMods(this));
         if (button.id == 2) Minecraft.getMinecraft().displayGuiScreen(new GuiMods.GuiNeededMods(this));
